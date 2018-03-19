@@ -1,0 +1,1031 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- <meta http-equiv="Cache-Control" content="private"> -->
+
+    <!-- Swiper JS -->
+    <link href="$request.contextPath/css/swiper.min.css" rel="stylesheet" type="text/css" />
+    <script src="$request.contextPath/js/swiper.min.js"></script>
+    <script src="$request.contextPath/js/jquery-1.9.1.min.js"></script>
+    <script src="$request.contextPath/js/vue.min.js"></script>
+    <link href="$request.contextPath/css/coupon_reset.css" rel="stylesheet" type="text/css" />
+    <link href="$request.contextPath/css/coupon_index.min.css" rel="stylesheet" type="text/css" />
+
+    <script src="$request.contextPath/js/common.js?v=20171227112" type="text/javascript"></script>
+
+    <!-- <script src="lib/swiper.min.js"></script>
+    <script src="lib/jquery-1.7.2.min.js"></script>
+    <script src="lib/vue.min.js"></script>
+    <link href="lib/swiper.min.css" rel="stylesheet" type="text/css" />
+    <link href="lib/index.css" rel="stylesheet" type="text/css" />
+    <link href="lib/reset.css" rel="stylesheet" type="text/css" /> -->
+
+    <script src="https://cdn.bootcss.com/babel-polyfill/6.23.0/polyfill.min.js"></script>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=cRIblrzawnZeT319eL3dLssL"></script>
+    <title>我的优惠券</title>
+</head>
+<!-- loading样式 -->
+<style>
+    @-webkit-keyframes line-scale-pulse-out {
+        0% {
+            -webkit-transform: scaley(1);
+            transform: scaley(1);
+        }
+        50% {
+            -webkit-transform: scaley(0.4);
+            transform: scaley(0.4);
+        }
+        100% {
+            -webkit-transform: scaley(1);
+            transform: scaley(1);
+        }
+    }
+
+    @keyframes line-scale-pulse-out {
+        0% {
+            -webkit-transform: scaley(1);
+            transform: scaley(1);
+        }
+        50% {
+            -webkit-transform: scaley(0.4);
+            transform: scaley(0.4);
+        }
+        100% {
+            -webkit-transform: scaley(1);
+            transform: scaley(1);
+        }
+    }
+
+    .line-scale-pulse-out>div {
+        background-color: #F2721D;
+        width: 4px;
+        height: 35px;
+        border-radius: 2px;
+        margin: 2px;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+        display: inline-block;
+        -webkit-animation: line-scale-pulse-out 0.9s -0.6s infinite cubic-bezier(0.85, 0.25, 0.37, 0.85);
+        animation: line-scale-pulse-out 0.9s -0.6s infinite cubic-bezier(0.85, 0.25, 0.37, 0.85);
+    }
+
+    .line-scale-pulse-out>div:nth-child(2),
+    .line-scale-pulse-out>div:nth-child(4) {
+        -webkit-animation-delay: -0.4s !important;
+        animation-delay: -0.4s !important;
+    }
+
+    .line-scale-pulse-out>div:nth-child(1),
+    .line-scale-pulse-out>div:nth-child(5) {
+        -webkit-animation-delay: -0.2s !important;
+        animation-delay: -0.2s !important;
+    }
+
+    @-webkit-keyframes line-scale-pulse-out-rapid {
+        0% {
+            -webkit-transform: scaley(1);
+            transform: scaley(1);
+        }
+        80% {
+            -webkit-transform: scaley(0.3);
+            transform: scaley(0.3);
+        }
+        90% {
+            -webkit-transform: scaley(1);
+            transform: scaley(1);
+        }
+    }
+
+    @keyframes line-scale-pulse-out-rapid {
+        0% {
+            -webkit-transform: scaley(1);
+            transform: scaley(1);
+        }
+        80% {
+            -webkit-transform: scaley(0.3);
+            transform: scaley(0.3);
+        }
+        90% {
+            -webkit-transform: scaley(1);
+            transform: scaley(1);
+        }
+    }
+
+    .line-scale-pulse-out-rapid>div {
+        background-color: #F2721D;
+        width: 4px;
+        height: 35px;
+        border-radius: 2px;
+        margin: 2px;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+        display: inline-block;
+        vertical-align: middle;
+        -webkit-animation: line-scale-pulse-out-rapid 0.9s -0.5s infinite cubic-bezier(0.11, 0.49, 0.38, 0.78);
+        animation: line-scale-pulse-out-rapid 0.9s -0.5s infinite cubic-bezier(0.11, 0.49, 0.38, 0.78);
+    }
+
+    .line-scale-pulse-out-rapid>div:nth-child(2),
+    .line-scale-pulse-out-rapid>div:nth-child(4) {
+        -webkit-animation-delay: -0.25s !important;
+        animation-delay: -0.25s !important;
+    }
+
+    .line-scale-pulse-out-rapid>div:nth-child(1),
+    .line-scale-pulse-out-rapid>div:nth-child(5) {
+        -webkit-animation-delay: 0s !important;
+        animation-delay: 0s !important;
+    }
+
+    .loader {
+        position: absolute;
+        left: 50%;
+        top: 30%;
+        color: red;
+        width: 100px;
+        text-align: center;
+        margin-left: -50px;
+    }
+</style>
+
+<body>
+    <div class="bg" id="app" :style="show_nav?'overflow:hidden':'-webkit-overflow-scrolling:touch;overflow-y:scroll;'">
+        <!-- {{print}} -->
+        <section v-if="!request_fail&&ticket_data">
+            <div v-cloak class="container_conpon" v-if="ticket_data.avlCouponNum!=0||ticket_data.invalidCouponNum!=0" style="overflow: auto;">
+                <section>
+                    <div class="ticket_module">
+                        <!-- 可用优惠券 -->
+                        <section>
+                            <div class="title_part">
+                                <div class="have_how_much_ticket" v-if="ticket_data.avlCouponNum>0">有&nbsp;<span>{{ticket_data.avlCouponNum}}</span>&nbsp;张可用优惠券
+                                </div>
+                                <div class="instruction" @click="location.href='https://img.ejiayou.com/wxmp/mycoupon_rule.html?v=20170104'">
+                                    <img src="//img.ejiayou.com/wxmp/coupons/Info.png" alt="" class="info">
+                                    <span>使用说明</span>
+                                </div>
+                            </div>
+                            <!-- 加油券 -->
+                            <div class="ticket_item" v-if="couponInfo_item.type==1&&ticket_data.avlCouponNum>0&&couponInfo_item.enabled==1" v-for="couponInfo_item in ticket_data.couponInfos">
+                                <img src="//img.ejiayou.com/wxmp/coupons/Coupon_Decoration.png" alt="" class="dec">
+                                <img src="//img.ejiayou.com/wxmp/coupons/right_cut@2x.png" class="right_cut">
+                                <img src="//img.ejiayou.com/wxmp/coupons/left_cut@2x.png" class="left_cut">
+                                <!-- 改变颜色，在ticket_item_top后面加样式orange，purple，blue，grey -->
+                                <div class="ticket_item_top " :class="changeTicketColor(couponInfo_item.type)">
+                                    <!-- 三种优惠券 -->
+                                    <div class="ticket_name ">{{couponInfo_item.name}}&nbsp;
+                                        <span v-if="couponInfo_item.nameExt">{{couponInfo_item.nameExt}}</span>
+                                    </div>
+                                    <!-- 两种有效期 -->
+                                    <div class="ticket_detail">
+                                        <span> {{couponInfo_item.limitTime}}</span>
+                                        <br/>
+                                        <span> {{couponInfo_item.limitTimeExplain}}</span>
+                                    </div>
+
+                                    <div class="ticket_value_part">
+                                        <!-- 两种折扣 -->
+                                        <section v-if="couponInfo_item.merchandiseType==2">
+                                            <div class="ticket_value_discount">{{couponInfo_item.value.split('.')[0]}}<span><span v-if="couponInfo_item.value.split('.')[1]">.{{couponInfo_item.value.split('.')[1]}}</span>折</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                        <section v-if="couponInfo_item.merchandiseType==1||couponInfo_item.merchandiseType==0">
+                                            <div class="ticket_value_money">￥<span>{{couponInfo_item.value}}</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+
+
+                                <div class="ticket_item_bottom ">
+                                    <!-- 两种底部上升模块 -->
+                                    <section v-if="!couponInfo_item.pull_down" @click="click_ticket(couponInfo_item)">
+                                        <!-- 多个可用油站模块 -->
+                                        <div v-if="couponInfo_item.stationNum>1" class="station_title">
+                                            <div class="station_img_multi">
+                                                <img v-if="index<4" v-for="limitStations_item,index in couponInfo_item.limitStations" :src="limitStations_item.url" alt=""
+                                                    class="item">
+                                            </div>
+                                            <div class="station_part">
+                                                <div class="station_name">
+                                                    <span style="float:left;">
+                                                        <span style="display:inline" v-for="(limitStations_item,index) in couponInfo_item.limitStations">
+                                                            {{limitStations_item.stationName}}、
+                                                        </span>
+                                                    </span>等{{couponInfo_item.stationNum}}个油站专享
+                                                </div>
+                                            </div>
+                                            <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down">
+                                        </div>
+                                        <!-- 全部可用或者单个可用油站模块 -->
+                                        <div v-if="couponInfo_item.stationNum<=1" class="station_title">
+                                            <div class="station_img_single">
+                                                <img v-if="couponInfo_item.stationNum==-1" src="//img.ejiayou.com/wxmp/coupons/Logo.png" alt="" class="item">
+                                                <img v-else :src="couponInfo_item.limitStations[0].url" alt="" class="item">
+                                            </div>
+                                            <div class="station_part">
+                                                <div class="station_name">
+                                                    <span class="not_limit_length"> {{couponInfo_item.stationNum==-1?'全部油站可用':couponInfo_item.limitStations[0].stationName+'专享'}}
+                                                </div>
+                                            </div>
+                                            <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down" v-if="couponInfo_item.stationNum>0||couponInfo_item.moreRules">
+                                        </div>
+                                    </section>
+                                    <!-- 三种底部下拉模块 -->
+                                    <section v-show="couponInfo_item.pull_down">
+                                        <section v-if="couponInfo_item.stationNum>0">
+                                            <!-- 下拉-可用油站标题模块 -->
+                                            <div class="station_name_title" @click="couponInfo_item.pull_down=false">
+                                                <div class="station_name">可用油站(
+                                                    <span>{{couponInfo_item.stationNum}}</span>个)</div>
+                                                <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down rotate">
+                                            </div>
+                                            <!-- 下拉-油站图片展览模块 -->
+                                            <div v-if="couponInfo_item.stationNum>0" class="station_img_scroll">
+                                                <div class="swiper-container" :id="couponInfo_item.userCouponId">
+                                                    <div class="swiper-wrapper">
+                                                        <div @click="click_station_img(limitStation_item)" v-for="limitStation_item in couponInfo_item.limitStations" class="swiper-slide">
+                                                            <img :data-src="limitStation_item.url" alt="">
+                                                            <div>
+                                                                <span class="limitLength">{{limitStation_item.stationName}}</span>
+                                                                <span class="limitLength" v-if="limitStation_item.distance">{{limitStation_item.distance}}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+                                        <section v-if="couponInfo_item.stationNum==-1" @click="couponInfo_item.pull_down=false">
+                                            <div class="station_title">
+                                                <div class="station_img_single">
+                                                    <img src="//img.ejiayou.com/wxmp/coupons/Logo.png" alt="" class="item">
+                                                </div>
+                                                <div class="station_part">
+                                                    <div class="station_name">
+                                                        <span> 全部油站可用</div>
+                                                </div>
+                                                <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down rotate">
+                                            </div>
+                                        </section>
+                                        <!-- 下拉-更多规则模块 -->
+                                        <div class="more_rules" v-if="couponInfo_item.moreRules">
+                                            <div class="name">
+                                                更多规则
+                                            </div>
+                                            <div class="detail">
+                                                {{couponInfo_item.moreRules}}
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                            <!-- 商品券 -->
+                            <div class="ticket_item" v-if="couponInfo_item.type==2&&ticket_data.avlCouponNum>0&&couponInfo_item.enabled==1" v-for="couponInfo_item in ticket_data.couponInfos">
+                                <img src="//img.ejiayou.com/wxmp/coupons/Coupon_Decoration.png" alt="" class="dec">
+                                <img src="//img.ejiayou.com/wxmp/coupons/right_cut@2x.png" class="right_cut">
+                                <img src="//img.ejiayou.com/wxmp/coupons/left_cut@2x.png" class="left_cut">
+                                <!-- 改变颜色，在ticket_item_top后面加样式orange，purple，blue，grey -->
+                                <div class="ticket_item_top " :class="changeTicketColor(couponInfo_item.type)">
+                                    <!-- 三种优惠券 -->
+                                    <div class="ticket_name ">{{couponInfo_item.name}}&nbsp;
+                                        <span v-if="couponInfo_item.nameExt"> {{couponInfo_item.nameExt}}</span>
+                                    </div>
+                                    <!-- 两种有效期 -->
+                                    <div class="ticket_detail">
+                                        <span> {{couponInfo_item.limitTime}}</span>
+                                        <br/>
+                                        <span> {{couponInfo_item.limitTimeExplain}}</span>
+                                    </div>
+
+                                    <div class="ticket_value_part">
+                                        <!-- 两种折扣 -->
+                                        <section v-if="couponInfo_item.merchandiseType==2">
+                                            <div class="ticket_value_discount">{{couponInfo_item.value.split('.')[0]}}<span><span v-if="couponInfo_item.value.split('.')[1]">.{{couponInfo_item.value.split('.')[1]}}</span>折</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                        <section v-if="couponInfo_item.merchandiseType==1||couponInfo_item.merchandiseType==0">
+                                            <div class="ticket_value_money">￥<span>{{couponInfo_item.value}}</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+
+
+                                <div class="ticket_item_bottom ">
+                                    <!-- 两种底部上升模块 -->
+                                    <section v-if="!couponInfo_item.pull_down" @click="click_ticket(couponInfo_item)">
+                                        <!-- 多个可用油站模块 -->
+                                        <div v-if="couponInfo_item.stationNum>1" class="station_title">
+                                            <div class="station_img_multi">
+                                                <img v-if="index<4" v-for="limitStations_item,index in couponInfo_item.limitStations" :src="limitStations_item.url" alt=""
+                                                    class="item">
+                                            </div>
+                                            <div class="station_part">
+                                                <div class="station_name">
+                                                    <span style="float:left;">
+                                                        <span style="display:inline" v-for="(limitStations_item,index) in couponInfo_item.limitStations">
+                                                            {{limitStations_item.stationName}}、
+                                                        </span>
+                                                    </span>等{{couponInfo_item.stationNum}}个油站专享
+                                                </div>
+                                            </div>
+                                            <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down">
+                                        </div>
+                                        <!-- 全部可用或者单个可用油站模块 -->
+                                        <div v-if="couponInfo_item.stationNum<=1" class="station_title">
+                                            <div class="station_img_single">
+                                                <img v-if="couponInfo_item.stationNum==-1" src="//img.ejiayou.com/wxmp/coupons/Logo.png" alt="" class="item">
+                                                <img v-else :src="couponInfo_item.limitStations[0].url" alt="" class="item">
+                                            </div>
+                                            <div class="station_part">
+                                                <div class="station_name">
+                                                    <span class="not_limit_length"> {{couponInfo_item.stationNum==-1?'全部油站可用':couponInfo_item.limitStations[0].stationName+'专享'}}
+                                                </div>
+                                            </div>
+                                            <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down" v-if="couponInfo_item.stationNum>0||couponInfo_item.moreRules">
+                                        </div>
+                                    </section>
+                                    <!-- 三种底部下拉模块 -->
+                                    <section v-show="couponInfo_item.pull_down">
+                                        <section v-if="couponInfo_item.stationNum>0">
+                                            <!-- 下拉-可用油站标题模块 -->
+                                            <div class="station_name_title" @click="couponInfo_item.pull_down=false">
+                                                <div class="station_name">可用油站(
+                                                    <span>{{couponInfo_item.stationNum}}</span>个)</div>
+                                                <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down rotate">
+                                            </div>
+                                            <!-- 下拉-油站图片展览模块 -->
+                                            <div v-if="couponInfo_item.stationNum>0" class="station_img_scroll">
+                                                <div class="swiper-container" :id="couponInfo_item.userCouponId">
+                                                    <div class="swiper-wrapper">
+                                                        <div @click="click_station_img(limitStation_item)" v-for="limitStation_item in couponInfo_item.limitStations" class="swiper-slide">
+                                                            <img :data-src="limitStation_item.url" alt="">
+                                                            <div>
+                                                                <span class="limitLength">{{limitStation_item.stationName}}</span>
+                                                                <span class="limitLength" v-if="limitStation_item.distance">{{limitStation_item.distance}}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+                                        <section v-if="couponInfo_item.stationNum==-1" @click="couponInfo_item.pull_down=false">
+                                            <div class="station_title">
+                                                <div class="station_img_single">
+                                                    <img src="//img.ejiayou.com/wxmp/coupons/Logo.png" alt="" class="item">
+                                                </div>
+                                                <div class="station_part">
+                                                    <div class="station_name">
+                                                        <span> 全部油站可用</div>
+                                                </div>
+                                                <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down rotate">
+                                            </div>
+                                        </section>
+                                        <!-- 下拉-更多规则模块 -->
+                                        <div class="more_rules" v-if="couponInfo_item.moreRules">
+                                            <div class="name">
+                                                更多规则
+                                            </div>
+                                            <div class="detail">
+                                                {{couponInfo_item.moreRules}}
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                            <!-- 洗车券 -->
+                            <div class="ticket_item" v-if="couponInfo_item.type==3&&ticket_data.avlCouponNum>0&&couponInfo_item.enabled==1" v-for="couponInfo_item in ticket_data.couponInfos">
+                                <img src="//img.ejiayou.com/wxmp/coupons/Coupon_Decoration.png" alt="" class="dec">
+                                <img src="//img.ejiayou.com/wxmp/coupons/right_cut@2x.png" class="right_cut">
+                                <img src="//img.ejiayou.com/wxmp/coupons/left_cut@2x.png" class="left_cut">
+                                <!-- 改变颜色，在ticket_item_top后面加样式orange，purple，blue，grey -->
+                                <div class="ticket_item_top " :class="changeTicketColor(couponInfo_item.type)">
+                                    <!-- 三种优惠券 -->
+                                    <div class="ticket_name ">{{couponInfo_item.name}}&nbsp;
+                                        <span v-if="couponInfo_item.nameExt"> {{couponInfo_item.nameExt}}</span>
+                                    </div>
+                                    <!-- 两种有效期 -->
+                                    <div class="ticket_detail">
+                                        <span> {{couponInfo_item.limitTime}}</span>
+                                        <br/>
+                                        <span> {{couponInfo_item.limitTimeExplain}}</span>
+                                    </div>
+
+                                    <div class="ticket_value_part">
+                                        <!-- 两种折扣 -->
+                                        <section v-if="couponInfo_item.merchandiseType==2">
+                                            <div class="ticket_value_discount">{{couponInfo_item.value.split('.')[0]}}<span><span v-if="couponInfo_item.value.split('.')[1]">.{{couponInfo_item.value.split('.')[1]}}</span>折</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                        <section v-if="couponInfo_item.merchandiseType==1||couponInfo_item.merchandiseType==0">
+                                            <div class="ticket_value_money">￥<span>{{couponInfo_item.value}}</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+
+
+                                <div class="ticket_item_bottom ">
+                                    <!-- 两种底部上升模块 -->
+                                    <section v-if="!couponInfo_item.pull_down" @click="click_ticket(couponInfo_item)">
+                                        <!-- 多个可用油站模块 -->
+                                        <div v-if="couponInfo_item.stationNum>1" class="station_title">
+                                            <div class="station_img_multi">
+                                                <img v-if="index<4" v-for="limitStations_item,index in couponInfo_item.limitStations" :src="limitStations_item.url" alt=""
+                                                    class="item">
+                                            </div>
+                                            <div class="station_part">
+                                                <div class="station_name">
+                                                    <span style="float:left;">
+                                                        <span style="display:inline" v-for="(limitStations_item,index) in couponInfo_item.limitStations">
+                                                            {{limitStations_item.stationName}}、
+                                                        </span>
+                                                    </span>等{{couponInfo_item.stationNum}}个油站专享
+                                                </div>
+                                            </div>
+                                            <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down">
+                                        </div>
+                                        <!-- 全部可用或者单个可用油站模块 -->
+                                        <div v-if="couponInfo_item.stationNum<=1" class="station_title">
+                                            <div class="station_img_single">
+                                                <img v-if="couponInfo_item.stationNum==-1" src="//img.ejiayou.com/wxmp/coupons/Logo.png" alt="" class="item">
+                                                <img v-else :src="couponInfo_item.limitStations[0].url" alt="" class="item">
+                                            </div>
+                                            <div class="station_part">
+                                                <div class="station_name">
+                                                    <span class="not_limit_length"> {{couponInfo_item.stationNum==-1?'全部油站可用':couponInfo_item.limitStations[0].stationName+'专享'}}
+                                                </div>
+                                            </div>
+                                            <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down" v-if="couponInfo_item.stationNum>0||couponInfo_item.moreRules">
+                                        </div>
+                                    </section>
+                                    <!-- 三种底部下拉模块 -->
+                                    <section v-show="couponInfo_item.pull_down">
+                                        <section v-if="couponInfo_item.stationNum>0">
+                                            <!-- 下拉-可用油站标题模块 -->
+                                            <div class="station_name_title" @click="couponInfo_item.pull_down=false">
+                                                <div class="station_name">可用油站(
+                                                    <span>{{couponInfo_item.stationNum}}</span>个)</div>
+                                                <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down rotate">
+                                            </div>
+                                            <!-- 下拉-油站图片展览模块 -->
+                                            <div v-if="couponInfo_item.stationNum>0" class="station_img_scroll">
+                                                <div class="swiper-container" :id="couponInfo_item.userCouponId">
+                                                    <div class="swiper-wrapper">
+                                                        <div @click="click_station_img(limitStation_item)" v-for="limitStation_item in couponInfo_item.limitStations" class="swiper-slide">
+                                                            <img :data-src="limitStation_item.url" alt="">
+                                                            <div>
+                                                                <span class="limitLength">{{limitStation_item.stationName}}</span>
+                                                                <span class="limitLength" v-if="limitStation_item.distance">{{limitStation_item.distance}}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+                                        <section v-if="couponInfo_item.stationNum==-1" @click="couponInfo_item.pull_down=false">
+                                            <div class="station_title">
+                                                <div class="station_img_single">
+                                                    <img src="//img.ejiayou.com/wxmp/coupons/Logo.png" alt="" class="item">
+                                                </div>
+                                                <div class="station_part">
+                                                    <div class="station_name">
+                                                        <span> 全部油站可用</div>
+                                                </div>
+                                                <img src="//img.ejiayou.com/wxmp/coupons/Drop_Down.png" alt="" class="drop_down rotate">
+                                            </div>
+                                        </section>
+                                        <!-- 下拉-更多规则模块 -->
+                                        <div class="more_rules" v-if="couponInfo_item.moreRules">
+                                            <div class="name">
+                                                更多规则
+                                            </div>
+                                            <div class="detail">
+                                                {{couponInfo_item.moreRules}}
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+
+                            <div class="no_avlCoupon_blank" v-if="ticket_data.avlCouponNum<1">
+                                暂无可用优惠券
+                            </div>
+                        </section>
+                        <!-- 不可用优惠券 -->
+                        <section v-if="ticket_data.invalidCouponNum>0">
+                            <div class="title_part disabled">
+                                <div class="have_how_much_ticket">
+                                    当前不可用的优惠券
+                                </div>
+                            </div>
+                            <!-- 加油券-->
+                            <div class="ticket_item" v-if="couponInfo_item.type==1&&couponInfo_item.enabled==2" v-for="couponInfo_item in ticket_data.couponInfos">
+                                <img src="//img.ejiayou.com/wxmp/coupons/Coupon_Decoration.png" alt="" class="dec">
+                                <img src="//img.ejiayou.com/wxmp/coupons/right_cut@2x.png" class="right_cut">
+                                <img src="//img.ejiayou.com/wxmp/coupons/left_cut@2x.png" class="left_cut">
+                                <div class="ticket_item_top grey" :class="changeTicketColor(couponInfo_item.type)">
+                                    <!-- 三种优惠券 -->
+                                    <div class="ticket_name ">{{couponInfo_item.name}}&nbsp;
+                                        <span style="color:rgba(0, 0, 0, 0.36)" v-if="couponInfo_item.nameExt">{{couponInfo_item.nameExt}}</span>
+                                    </div>
+                                    <!-- 两种有效期 -->
+                                    <div class="ticket_detail">
+                                        <span> {{couponInfo_item.limitTime}}</span>
+                                        <br/>
+                                        <span> {{couponInfo_item.limitTimeExplain}}</span>
+                                    </div>
+
+                                    <div class="ticket_value_part">
+                                        <!-- 两种折扣 -->
+                                        <section v-if="couponInfo_item.merchandiseType==2">
+                                            <div class="ticket_value_discount">{{couponInfo_item.value.split('.')[0]}}<span><span v-if="couponInfo_item.value.split('.')[1]">.{{couponInfo_item.value.split('.')[1]}}</span>折</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                        <section v-if="couponInfo_item.merchandiseType==1||couponInfo_item.merchandiseType==0">
+                                            <div class="ticket_value_money">￥<span>{{couponInfo_item.value}}</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+                                <div class="ticket_item_bottom ">
+                                    <!-- 不可用模块 -->
+                                    <div class="station_title disabled">
+                                        {{couponInfo_item.unavailableCause}}
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 商品券 -->
+                            <div class="ticket_item" v-if="couponInfo_item.type==2&&couponInfo_item.enabled==2" v-for="couponInfo_item in ticket_data.couponInfos">
+                                <img src="//img.ejiayou.com/wxmp/coupons/Coupon_Decoration.png" alt="" class="dec">
+                                <img src="//img.ejiayou.com/wxmp/coupons/right_cut@2x.png" class="right_cut">
+                                <img src="//img.ejiayou.com/wxmp/coupons/left_cut@2x.png" class="left_cut">
+                                <div class="ticket_item_top grey" :class="changeTicketColor(couponInfo_item.type)">
+                                    <!-- 三种优惠券 -->
+                                    <div class="ticket_name ">{{couponInfo_item.name}}&nbsp;
+                                        <span style="color:rgba(0, 0, 0, 0.36)" v-if="couponInfo_item.nameExt">{{couponInfo_item.nameExt}}</span>
+                                    </div>
+                                    <!-- 两种有效期 -->
+                                    <div class="ticket_detail">
+                                        <span> {{couponInfo_item.limitTime}}</span>
+                                        <br/>
+                                        <span> {{couponInfo_item.limitTimeExplain}}</span>
+                                    </div>
+
+                                    <div class="ticket_value_part">
+                                        <!-- 两种折扣 -->
+                                        <section v-if="couponInfo_item.merchandiseType==2">
+                                            <div class="ticket_value_discount">{{couponInfo_item.value.split('.')[0]}}<span><span v-if="couponInfo_item.value.split('.')[1]">.{{couponInfo_item.value.split('.')[1]}}</span>折</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                        <section v-if="couponInfo_item.merchandiseType==1||couponInfo_item.merchandiseType==0">
+                                            <div class="ticket_value_money">￥<span>{{couponInfo_item.value}}</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+                                <div class="ticket_item_bottom ">
+                                    <!-- 不可用模块 -->
+                                    <div class="station_title disabled">
+                                        {{couponInfo_item.unavailableCause}}
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 洗车券 -->
+                            <div class="ticket_item" v-if="couponInfo_item.type==3&&couponInfo_item.enabled==2" v-for="couponInfo_item in ticket_data.couponInfos">
+                                <img src="//img.ejiayou.com/wxmp/coupons/Coupon_Decoration.png" alt="" class="dec">
+                                <img src="//img.ejiayou.com/wxmp/coupons/right_cut@2x.png" class="right_cut">
+                                <img src="//img.ejiayou.com/wxmp/coupons/left_cut@2x.png" class="left_cut">
+                                <div class="ticket_item_top grey" :class="changeTicketColor(couponInfo_item.type)">
+                                    <!-- 三种优惠券 -->
+                                    <div class="ticket_name ">{{couponInfo_item.name}}&nbsp;
+                                        <span style="color:rgba(0, 0, 0, 0.36)" v-if="couponInfo_item.nameExt">{{couponInfo_item.nameExt}}</span>
+                                    </div>
+                                    <!-- 两种有效期 -->
+                                    <div class="ticket_detail">
+                                        <span> {{couponInfo_item.limitTime}}</span>
+                                        <br/>
+                                        <span> {{couponInfo_item.limitTimeExplain}}</span>
+                                    </div>
+
+                                    <div class="ticket_value_part">
+                                        <!-- 两种折扣 -->
+                                        <section v-if="couponInfo_item.merchandiseType==2">
+                                            <div class="ticket_value_discount">{{couponInfo_item.value.split('.')[0]}}<span><span v-if="couponInfo_item.value.split('.')[1]">.{{couponInfo_item.value.split('.')[1]}}</span>折</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                        <section v-if="couponInfo_item.merchandiseType==1||couponInfo_item.merchandiseType==0">
+                                            <div class="ticket_value_money">￥<span>{{couponInfo_item.value}}</span></div>
+                                            <div class="ticket_value_add">
+                                                {{couponInfo_item.valueExplain}}
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+                                <div class="ticket_item_bottom ">
+                                    <!-- 不可用模块 -->
+                                    <div class="station_title disabled">
+                                        {{couponInfo_item.unavailableCause}}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+                <div class="no_more_ticket_to_change">
+                    没有更多优惠券了&nbsp;&nbsp;|
+                    <span @click="{{location.href=server_url+'/wxmp/view/exchangeInnviteCodeFromMyprize.ac?userId='+user_id}}">&nbsp;兑换优惠券 </span>
+                    <img src="//img.ejiayou.com/wxmp/coupons/XS.png" alt="" class="s">
+                </div>
+                <!-- 导航弹窗 -->
+                <div class="navTo" v-if="show_nav">
+                    <div class="bombox">
+                        <img class="" @click="show_nav=false" src="//img.ejiayou.com/wxmp/coupons/LC_icon_close_line.png" alt="">
+                        <div class="station_title">油站信息：</div>
+                        <div class="station_name">{{stationInfo.name}}</div>
+                        <div class="station_addr">{{stationInfo.addr}}</div>
+                        <hr>
+                        <div class="instruction_title">使用指南：</div>
+                        <ul class="instruction_content">
+                            <li>
+                                <span class="list">1</span>前往该加油站
+                            </li>
+                            <li>
+                                <span class="list">2</span>向收银台说明“我是
+                                <span>营运车</span>”司机
+                            </li>
+                            <li>
+                                <span class="list">3</span>按照收银员指导操作享受优惠油价
+                            </li>
+                        </ul>
+                        <div class="button_div">
+
+                            <button @click="click_nav_button()">导航前往油站</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="no_more_ticket" v-if="ticket_data.avlCouponNum==0&&ticket_data.invalidCouponNum==0">
+                <div class="instruction" @click="location.href='https://img.ejiayou.com/wxmp/mycoupon_rule.html?v=20170104'">
+                    <img src="//img.ejiayou.com/wxmp/coupons/Info.png" alt="" class="info">
+                    <span>使用说明</span>
+                </div>
+                <div class="box">
+                    <div>暂无优惠券</div>
+                    <div @click="{{location.href=server_url+'/wxmp/view/exchangeInnviteCodeFromMyprize.ac?userId='+user_id}}">
+                        &nbsp;兑换优惠券
+                        <img src="//img.ejiayou.com/wxmp/coupons/XS.png" alt="" class="s">
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section v-if="request_fail">
+            <div class="fali">
+                请求出错了
+            </div>
+        </section>
+        <section v-if="show_loading">
+            <div class="loader">
+                <div class="loader-inner line-scale-pulse-out">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+<!-- Initialize Swiper -->
+<script type="text/javascript">
+    var userId = '$!{userId}';
+    var host_url = window.origin;
+    var osType = '$!{osType}';
+
+    // var userId = 2195237;
+    // userId = 2721901;
+    // userId=88889205;
+    // var host_url = '//dev.ejiayou.com';
+    // var osType = 3;
+
+
+    $(function () {
+        var request_url = host_url + '/v1/coupon/myCoupon';
+        var currentPoint = {
+            longitude: 0,
+            latitude: 0
+        }
+        var app = new Vue({
+            el: "#app",
+            data: {
+                ticket_data: "", //优惠券数据
+                stationInfo: { //油站信息
+
+                },
+                show_nav: false, //导航判断
+                request_fail: false, //请求出错判断
+                os_type: osType,
+                user_id: userId,
+                server_url: host_url,
+                print: '',
+                show_loading: true
+            },
+            methods: {
+                changeTicketColor: function (a) {
+                    switch (a) {
+                        case 1:
+                            return 'orange';
+                        case 2:
+                            return 'purple';
+                        case 3:
+                            return 'blue';
+                        default:
+                            return 'orange';
+                    }
+                },
+
+                //输入单张优惠券信息，当前经纬度；输出添加一个distance属性
+                calcStationDistance: function (coupon_item, currentPoint) {
+                    this.ticket_data.couponInfos.forEach(function (obj) {
+                        if (obj.userCouponId == coupon_item.userCouponId) {
+                            obj.limitStations.forEach(function (station_obj) {
+                                var pointA = new BMap.Point(currentPoint.longitude,
+                                    currentPoint.latitude);
+                                var pointB = new BMap.Point(station_obj.longitude,
+                                    station_obj.latitude);
+                                var res = map.getDistance(pointA, pointB);
+                                var text_res = formatDistance(res);
+                                station_obj.distance_num=res;//数字距离
+                                station_obj.distance = text_res;//文字距离
+
+                            });
+                            obj.limitStations.sort(compare('distance_num'));
+                        }
+
+                    });
+                },
+
+                getData: function () {
+                    var options = {
+                        os_type: osType,
+                        user_id: userId
+                    };
+
+                    $.post(request_url, options, function (res) {
+                        app.show_loading = false;
+                        if (res.code == 200) {
+                            res.data.couponInfos.forEach(function (obj) {
+                                obj.pull_down = false;
+                            })
+                            // res.data.couponInfos.sort(compare('type'));
+                            console.log("返回数据res");
+                            console.log(res);
+                            app.ticket_data = res.data;
+                            //判断是否有油站，然后弹出授权框
+                            $.each(app.ticket_data.couponInfos, function (i,
+                                couponInfos_obj) {
+                                if (couponInfos_obj.stationNum > 0 &&
+                                    couponInfos_obj.enabled == 1) { //可用且有油站图片
+                                    getLocation();
+                                    return false;
+                                }
+                            })
+                        } else {
+                            app.request_fail = true;
+                        }
+                    });
+                },
+                // 点击下拉动作
+                click_ticket: function (coupon_item) {
+                    // 有可用油站或者更多规则时可下拉
+                    if (coupon_item.stationNum > 0 || coupon_item.moreRules) {
+                        coupon_item.pull_down = true;
+                        swiper = new Swiper('#' + coupon_item.userCouponId, {
+                            initialSlide: 0,
+                            observer: true, //修改swiper自己或子元素时，自动初始化swiper
+                            observeParents: true, //修改swiper的父元素时，自动初始化swiper
+                            pagination: '.swiper-pagination',
+                            paginationClickable: true,
+                            //spaceBetween: 16,
+                            slidesPerView: 'auto',
+                            onSlideChangeStart: function () {
+                                onScroll();
+                            }
+                        });
+                        onScroll();
+
+                        // 有油站时计算距离
+                        if (coupon_item.stationNum > 0) {
+                            // 计算单个优惠券距离
+                            if (currentPoint.longitude && currentPoint.latitude) {
+                                app.calcStationDistance(coupon_item, currentPoint);
+                            }
+                            //存在定位未获取到情况,将延迟计算
+                            setInterval(function () {
+                                if (currentPoint.longitude && currentPoint.latitude) {
+                                    app.calcStationDistance(coupon_item, currentPoint);
+                                    clearInterval();
+                                }
+
+                            }, 1000)
+                        }
+                    }
+
+
+                },
+                //点击油站图片
+                click_station_img: function (station_item) {
+                    app.stationInfo.stationId = station_item.stationId;
+                    app.stationInfo.name = station_item.stationName;
+                    app.stationInfo.addr = station_item.address;
+                    app.stationInfo.latitude = station_item.latitude;
+                    app.stationInfo.longitude = station_item.longitude;
+                    app.stationInfo.userCouponId = station_item.userCouponId;
+                    if (app.os_type == 1 || app.os_type == 2) { //ios和android平台调起油站详情
+                        var option = {
+                            type: 'ejiayou://stationDetail',
+                            url: app.stationInfo.stationId
+                        };
+                        option = JSON.stringify(option);
+                        if (app.os_type == 1) {
+                            //ios
+                            window.webkit.messageHandlers.jsCallToNativePages.postMessage(option);
+                        }
+                        if (app.os_type == 2) {
+                            //安卓
+                            Android.jsCallToNativePages(option);
+                        }
+                    } else {
+                        //微信弹出框，调起百度地图
+                        this.show_nav = true;
+                    }
+                },
+
+                //点击导航按钮
+                click_nav_button: function () {
+                    var stationName = encodeURI(app.stationInfo.name);
+                    var stationAddr = encodeURI(app.stationInfo.addr);
+                    window.location.href = "https://api.map.baidu.com/marker?location=" +
+                        app.stationInfo.latitude + "," + app.stationInfo.longitude + "&title=" +
+                        stationName + "&content=" + stationAddr + "&output=html";
+                }
+            },
+            created: function () {
+                this.getData();
+            }
+        })
+        var swiper;
+
+        var x = document.getElementById("demo");
+        var map = new BMap.Map("l-map");
+
+
+        function formatDistance(len) {
+            var res;
+            len = parseInt(len);
+            if (typeof (len) == "number") {
+
+                if (len >= 1000) {
+                    res = (len / 1000).toFixed(1);
+                    return res + 'km';
+                } else if (0 <= len < 1000) {
+                    res = len;
+                    return res + 'm';
+                } else {
+                    res = len;
+                    return res + 'm';
+                }
+            }
+        }
+
+
+        function compare(property) {
+            return function (a, b) {
+                var value1 = a[property];
+                var value2 = b[property];
+                return value1 - value2;
+            }
+        }
+        // count = 0;
+
+
+        // 拒绝及错误处理
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("获取不到您的地理位置，您将不能看到油站距离")
+
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("位置信息是不可用的。")
+
+                    break;
+
+                case error.TIMEOUT:
+                    alert("请求用户地理位置超时。")
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("未知错误。")
+                    break;
+            }
+        }
+        //百度地图获取坐标
+
+        function getLocation() {
+            if (!sessionStorage.getItem('current_point')) {
+                var geolocation = new BMap.Geolocation();
+                if (geolocation) {
+                    geolocation.getCurrentPosition(function (r) {
+                        if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+                            // app.print = '获取到经纬度' + JSON.stringify(r.point.lng+',        '+r.point.lat);
+                            currentPoint.longitude =r.point.lng;
+                            currentPoint.latitude = r.point.lat;
+                            sessionStorage.setItem('current_point', JSON.stringify(currentPoint));
+                        }else{
+                            alert('获取不到经纬度');
+                        }
+                    },showError);
+                } else {
+                    alert("该浏览器不支持获取地理位置。");
+                }
+            } else {
+                currentPoint.longitude = JSON.parse(sessionStorage.getItem('current_point')).longitude;
+                currentPoint.latitude = JSON.parse(sessionStorage.getItem('current_point')).latitude;
+            }
+
+        }
+
+        // 注意: 需要引入jQuery和underscore
+        // 获取window的引用:
+
+        var $window = $(window);
+        // 获取包含data-src属性的img，并以jQuery对象存入数组:
+        var lazyImgs = $.map($('img[data-src]').get(), function (i) {
+            return $(i);
+        });
+        var aaaaaa = $.map($('div[class]').get(), function (i) {
+            return $(i);
+        });
+        // 定义事件函数:
+        var onScroll = function () {
+            // 获取页面滚动的高度:
+            var wtop = $window.scrollTop();
+            // 判断是否还有未加载的img:
+            lazyImgs = $.map($('img[data-src]').get(), function (i) {
+                return $(i);
+            });
+            if (lazyImgs.length > 0) {
+                // 获取可视区域高度:
+                var wheight = $window.height();
+                // 存放待删除的索引:
+                var loadedIndex = [];
+                // 循环处理数组的每个img元素:
+                $.each(lazyImgs, function (index, $i) {
+                    // 判断是否在可视范围内:
+                    if ($i.offset().top - wtop < wheight) {
+                        // 设置src属性:
+                        $i.attr('src', $i.attr('data-src'));
+                        // 添加到待删除数组:
+                        loadedIndex.unshift(index);
+                    }
+                });
+                // 删除已处理的对象:
+                $.each(loadedIndex, function (index) {
+                    lazyImgs.splice(index, 1);
+                });
+            }
+        };
+    })
+</script>
+
+</html>
